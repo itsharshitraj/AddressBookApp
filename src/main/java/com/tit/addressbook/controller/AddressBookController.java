@@ -1,12 +1,13 @@
 package com.tit.addressbook.controller;
 
-
+import com.tit.addressbook.model.Address;
 import com.tit.addressbook.service.AddressBookService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Map;
+
+import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/addressbook")
@@ -18,37 +19,38 @@ public class AddressBookController {
         this.addressBookService = addressBookService;
     }
 
-    // GET all contacts
+    // GET all addresses
     @GetMapping
-    public ResponseEntity<Map<Long, String>> getAllContacts() {
-        return ResponseEntity.ok(addressBookService.getAllContacts());
+    public ResponseEntity<List<Address>> getAllContacts() {
+        return ResponseEntity.ok(addressBookService.getAllAddresses());
     }
+
 
     // GET contact by ID
     @GetMapping("/{id}")
-    public ResponseEntity<String> getContactById(@PathVariable Long id) {
-        String contact = addressBookService.getContactById(id);
-        return (contact != null) ? ResponseEntity.ok(contact) : ResponseEntity.notFound().build();
+    public ResponseEntity<Address> getContactById(@PathVariable Long id) {
+        Optional<Address> address = addressBookService.getAddressById(id);
+        return address.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     // POST - Add new contact
     @PostMapping
-    public ResponseEntity<String> addContact(@RequestParam Long id, @RequestParam String name) {
-        addressBookService.addContact(id, name);
-        return ResponseEntity.ok("Contact added: " + name);
+    public ResponseEntity<String> addContact(@RequestBody Address address) {
+        addressBookService.addAddress(address);
+        return ResponseEntity.ok("Contact added: " + address.getName());
     }
 
     // PUT - Update contact by ID
     @PutMapping("/{id}")
-    public ResponseEntity<String> updateContact(@PathVariable Long id, @RequestParam String name) {
-        boolean updated = addressBookService.updateContact(id, name);
-        return updated ? ResponseEntity.ok("Contact updated to: " + name) : ResponseEntity.notFound().build();
+    public ResponseEntity<String> updateContact(@PathVariable Long id, @RequestBody Address updatedAddress) {
+        boolean updated = addressBookService.updateAddress(id, updatedAddress);
+        return updated ? ResponseEntity.ok("Contact updated") : ResponseEntity.notFound().build();
     }
-
     // DELETE - Remove contact by ID
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteContact(@PathVariable Long id) {
-        boolean deleted = addressBookService.deleteContact(id);
+        boolean deleted = addressBookService.deleteAddress(id);
         return deleted ? ResponseEntity.ok("Contact deleted") : ResponseEntity.notFound().build();
     }
+
 }

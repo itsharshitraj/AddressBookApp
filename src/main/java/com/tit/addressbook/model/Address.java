@@ -27,5 +27,18 @@ public class Address {
 
     @Column(nullable = false)
     private String state;
+
+
+    // 🔹 Add explicit getter if Lombok is not working
+    public Long getId() {
+        return this.id;
+    }
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return this.name;
+    }
 }
 

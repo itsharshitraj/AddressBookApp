@@ -1,36 +1,48 @@
 package com.tit.addressbook.service;
 
 
+import com.tit.addressbook.model.Address;
 import org.springframework.stereotype.Service;
-import java.util.HashMap;
-import java.util.Map;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AddressBookService {
-    private final Map<Long, String> addressBook = new HashMap<>();
+    private final List<Address> addressBook = new ArrayList<>();
 
-    public Map<Long, String> getAllContacts() {
+    public List<Address> getAllAddresses() {
         return addressBook;
     }
 
-    public String getContactById(Long id) {
-        return addressBook.get(id);
+    public Optional<Address> getAddressById(Long id) {
+        return addressBook.stream()
+                .filter(address -> address.getId().equals(id))
+                .findFirst();
     }
 
-    public String addContact(Long id, String name) {
-        addressBook.put(id, name);
-        return "Contact added: " + name;
-    }
-
-    public boolean updateContact(Long id, String name) {
-        if (addressBook.containsKey(id)) {
-            addressBook.put(id, name);
-            return true;
+    public void addAddress(Address address) {
+        if (address.getId() == null) {
+            // 🔹 Generate ID manually (auto-increment simulation)
+            long newId = addressBook.size() + 1;
+            address.setId(newId);
         }
-       return false;
+        addressBook.add(address);
     }
 
-    public boolean deleteContact(Long id) {
-        return addressBook.remove(id) != null;
+    public boolean updateAddress(Long id, Address updatedAddress) {
+        for (int i = 0; i < addressBook.size(); i++) {
+            if (addressBook.get(i).getId().equals(id)) {
+                addressBook.set(i, updatedAddress);
+                return true;
+            }
+        }
+        return false;
     }
+
+    public boolean deleteAddress(Long id) {
+        return addressBook.removeIf(address -> address.getId().equals(id));
+    }
+
 }
